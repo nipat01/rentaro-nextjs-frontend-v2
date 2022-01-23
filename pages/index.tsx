@@ -7,6 +7,11 @@ import NavBar from '../layout/navbar'
 const Home: NextPage = () => {
   return (
     <div>
+      {/* <Head>
+        <title>Rentaro</title>
+        <meta name="description" content="Rentaro Platform" />
+        <link rel="icon" href="/rentaro-icon-icon.png" />
+      </Head> */}
 
       {/* <main> */}
       <Image layout="responsive" src="/test1.jpg" alt="Vercel Logo" width={72} height={16} />
