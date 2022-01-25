@@ -13,11 +13,15 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { useSession, signIn, signOut } from "next-auth/react"
+import GoogleButton from 'react-google-button'
 
-const pages = ['Products', 'Rental', 'About Us'];
-const settings = ['Profile', 'Rental', 'Own Rental', 'Logout'];
+const pages = [{ name: "Products", path: "/products" }, { name: "Rental", path: "/rental" }, { name: "About Us", path: "aboutus" },];
+const settings = [{ name: "Profile", path: "/profile" }, { name: "Rental", path: "/rental" }, { name: "Own Rental", path: "/ownrental" }, { name: "Logout", path: "/" },];
 
 const NavBar = () => {
+    const { data: session } = useSession();
+
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -87,16 +91,20 @@ const NavBar = () => {
                                 }}
                             >
                                 {pages.map((page) => (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
+                                    <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                                         <Typography textAlign="center">
-                                            <Link href="profile">
-                                                {page}
+                                            <Link href={page.path}>
+                                                {page.name}
                                             </Link>
                                         </Typography>
                                     </MenuItem>
                                 ))}
                             </Menu>
                         </Box>
+
+
+
+
 
                         {/* <Typography
                             variant="h6"
@@ -117,21 +125,54 @@ const NavBar = () => {
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                             {pages.map((page) => (
                                 <Button
-                                    key={page}
+                                    key={page.name}
                                     onClick={handleCloseNavMenu}
                                     sx={{ my: 2, color: 'white', display: 'block' }}
                                 >
-                                    <Link href="profile">
-                                        {page}
+                                    <Link href={page.path}>
+                                        {page.name}
                                     </Link>
                                 </Button>
                             ))}
                         </Box>
 
+
+
+
                         <Box sx={{ flexGrow: 0 }}>
+                            {!session && (
+                                <>
+                                    <Box
+                                        sx={{ mt: 3, }}
+                                    // textAlign='center'
+                                    >
+                                        <GoogleButton
+                                            style={{
+                                                width: 200,
+                                                height: 50,
+                                                borderRadius: 3
+                                            }}
+                                            type="light"
+                                            onClick={() => {
+                                                console.log('Google button clicked')
+                                                signIn()
+                                            }}
+                                        />
+                                    </Box>
+                                </>
+                            )}
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+
+
+                                    {session && (
+                                        <>
+                                            {/* <p>
+                                                <pre>{JSON.stringify(session.user.name, null, 2)}</pre>
+                                            </p> */}
+                                            <Avatar>{session?.user?.name?.charAt(0)}</Avatar>
+                                        </>
+                                    )}
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -151,10 +192,25 @@ const NavBar = () => {
                                 onClose={handleCloseUserMenu}
                             >
                                 {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                        <Typography textAlign="center">
-                                            {setting}
-                                        </Typography>
+                                    <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
+                                        {
+                                            setting.name !== "Logout" ?
+                                                (<Link href={setting.path}>
+                                                    <Typography textAlign="center">
+                                                        {setting.name}
+                                                    </Typography>
+                                                </Link>) :
+                                                (<Link href={setting.path}>
+                                                    <Typography
+                                                        onClick={() => {
+                                                            console.log("logout");
+                                                            signOut()
+                                                        }} textAlign="center">
+                                                        {setting.name}
+                                                    </Typography>
+                                                </Link>)
+                                        }
+
                                     </MenuItem>
                                 ))}
                             </Menu>
