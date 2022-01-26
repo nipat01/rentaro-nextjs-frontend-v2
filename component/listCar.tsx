@@ -20,7 +20,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const ListCar = (props: any) => {
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
-    const [path, setPath] = useState("/car/1")
+    // const [path, setPath] = useState("/car/1")
     return (
         <>
             <Container fixed>
@@ -50,16 +50,17 @@ const ListCar = (props: any) => {
                                         <CardHeader
                                             avatar={
                                                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                                                    R
+                                                    {item.owner_id?.toUpperCase().charAt(0)}
                                                 </Avatar>
+                                                //  <Avatar>{session?.user?.name?.charAt(0)}</Avatar>
                                             }
                                             action={
                                                 <IconButton aria-label="settings">
                                                     <MoreVertIcon />
                                                 </IconButton>
                                             }
-                                            title="Nonthaburi, Pak ked"
-                                            subheader="September 14, 2016"
+                                            title={`${item.province}, ${item.district}, ${item.sub_district}`}
+                                            subheader={item.created}
                                         />
                                         <CardMedia
                                             component="img"
@@ -73,21 +74,29 @@ const ListCar = (props: any) => {
                                                 300 บาทต่อวัน
                                             </Typography> */}
                                             <Typography variant="body2" align='center'>
-                                                $300 ต่อวัน
+                                                {`$ ${item.cost} ต่อวัน`}
                                             </Typography>
                                         </CardContent>
                                         <CardActions style={{ justifyContent: 'center' }}>
                                             <Button size="small">
-                                                <Link href={path}>
+                                                <Link href={`car/${item._id}`}>
                                                     See More
                                                 </Link>
                                             </Button>
                                             {props.edit &&
-                                                < Button onClick={() => {
-                                                    props.openEditCar()
-                                                }} size="small">
-                                                    Edit
-                                                </Button>
+                                                <>
+                                                    < Button onClick={() => {
+                                                        props.openEditCar(item._id)
+                                                    }} size="small">
+                                                        Edit
+                                                    </Button>
+                                                    < Button onClick={() => {
+                                                        props.delete(item._id)
+                                                    }} size="small">
+                                                        Delete
+                                                    </Button>
+                                                </>
+
                                             }
                                         </CardActions>
                                     </Card>
@@ -99,20 +108,23 @@ const ListCar = (props: any) => {
                                     container item xs={12}
                                     sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
 
-                                    <Card sx={{ maxWidth: 345 }}>
+                                    <Card
+                                        key={item}
+                                        sx={{ maxWidth: 345 }}>
                                         <CardHeader
                                             avatar={
                                                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                                                    R
+                                                    {item.owner_id?.toUpperCase().charAt(0)}
                                                 </Avatar>
+                                                //  <Avatar>{session?.user?.name?.charAt(0)}</Avatar>
                                             }
                                             action={
                                                 <IconButton aria-label="settings">
                                                     <MoreVertIcon />
                                                 </IconButton>
                                             }
-                                            title="Nonthaburi, Pak ked"
-                                            subheader="September 14, 2016"
+                                            title={`${item.province}, ${item.district}, ${item.sub_district}`}
+                                            subheader={item.created}
                                         />
                                         <CardMedia
                                             component="img"
@@ -121,19 +133,34 @@ const ListCar = (props: any) => {
                                             image={image}
 
                                         />
-
+                                        <CardContent>
+                                            {/* <Typography gutterBottom variant="h5" component="div">
+                                                300 บาทต่อวัน
+                                            </Typography> */}
+                                            <Typography variant="body2" align='center'>
+                                                {`$ ${item.cost} ต่อวัน`}
+                                            </Typography>
+                                        </CardContent>
                                         <CardActions style={{ justifyContent: 'center' }}>
                                             <Button size="small">
-                                                <Link href={path}>
+                                                <Link href={`car/${item._id}`}>
                                                     See More
                                                 </Link>
                                             </Button>
                                             {props.edit &&
-                                                < Button onClick={() => {
-                                                    props.openEditCar()
-                                                }} size="small">
-                                                    Edit
-                                                </Button>
+                                                <>
+                                                    < Button onClick={() => {
+                                                        props.openEditCar()
+                                                    }} size="small">
+                                                        Edit
+                                                    </Button>
+                                                    < Button onClick={() => {
+                                                        props.delete()
+                                                    }} size="small">
+                                                        Delete
+                                                    </Button>
+                                                </>
+
                                             }
                                         </CardActions>
                                     </Card>

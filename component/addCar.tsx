@@ -13,6 +13,8 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import TextField from '@mui/material/TextField';
+import { useSession, signIn, signOut } from "next-auth/react"
+import { createCar } from '../service/rentaro.service';
 
 const Img = styled('img')({
     margin: 'auto',
@@ -21,9 +23,32 @@ const Img = styled('img')({
     maxHeight: '100%',
 });
 
-const AddCar = () => {
+const AddCar = (props: any) => {
+    const { data: session } = useSession();
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
     const [value, setValue] = React.useState(null);
+    const [carData, setCarData] = useState<any>();
+
+    const handleCreateCar = () => {
+        console.log("carData =>", carData);
+        createCar(carData).then(res => {
+            // console.log("res =>", res);
+            props.handleIsShow()
+        });
+
+    }
+
+    const handleChangeCarData = (e: any) => {
+        console.log("e", e.target.value);
+        setCarData((prev: any) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+            image: image,
+            owner_id: session?.user?.email
+        }))
+    }
+
+
 
     return (
         <>
@@ -57,16 +82,16 @@ const AddCar = () => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="ยี่ฮ้อ" variant="outlined" />
+                                <TextField name="model" value={carData?.model} fullWidth id="fullWidth" label="รุ่นรถ" variant="outlined" onChange={e => handleChangeCarData(e)} />
+                            </Box>
+                            {/* <Box sx={{ mt: 2 }} textAlign="center">
+                                <TextField name="phone" fullWidth id="fullWidth" label="รุ่น" variant="outlined" />
+                            </Box> */}
+                            <Box sx={{ mt: 2 }} textAlign="center">
+                                <TextField name="production_year" value={carData?.production_year} fullWidth id="fullWidth" label="ปี" variant="outlined" onChange={e => handleChangeCarData(e)} />
                             </Box>
                             <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="รุ่น" variant="outlined" />
-                            </Box>
-                            <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="ปี" variant="outlined" />
-                            </Box>
-                            <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="ราคาเช่าต่อวัน" variant="outlined" />
+                                <TextField name="cost" value={carData?.cost} fullWidth id="fullWidth" label="ราคาเช่าต่อวัน" variant="outlined" onChange={e => handleChangeCarData(e)} />
                             </Box>
 
                             {/* </Grid> */}
@@ -81,13 +106,13 @@ const AddCar = () => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="จังหวัด" variant="outlined" />
+                                <TextField name="province" value={carData?.province} fullWidth id="fullWidth" label="จังหวัด" variant="outlined" onChange={e => handleChangeCarData(e)} />
                             </Box>
                             <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="อำเภอ" variant="outlined" />
+                                <TextField name="district" value={carData?.district} fullWidth id="fullWidth" label="อำเภอ" variant="outlined" onChange={e => handleChangeCarData(e)} />
                             </Box>
                             <Box sx={{ mt: 2 }} textAlign="center">
-                                <TextField fullWidth id="fullWidth" label="ตำบล" variant="outlined" />
+                                <TextField name="sub_district" value={carData?.sub_district} fullWidth id="fullWidth" label="ตำบล" variant="outlined" onChange={e => handleChangeCarData(e)} />
                             </Box>
                         </Grid>
                     </Grid>
@@ -96,7 +121,7 @@ const AddCar = () => {
             <Box
                 sx={{ mt: 3 }}
                 textAlign='center'>
-                <Button variant='contained'>
+                <Button variant='contained' onClick={handleCreateCar}>
                     Save
                 </Button>
             </Box>

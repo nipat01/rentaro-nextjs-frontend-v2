@@ -170,7 +170,7 @@ const NavBar = () => {
                                             {/* <p>
                                                 <pre>{JSON.stringify(session.user.name, null, 2)}</pre>
                                             </p> */}
-                                            <Avatar>{session?.user?.name?.charAt(0)}</Avatar>
+                                            <Avatar>{session?.user?.name?.toUpperCase().charAt(0)}</Avatar>
                                         </>
                                     )}
                                 </IconButton>

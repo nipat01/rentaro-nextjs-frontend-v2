@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import Container from '@mui/material/Container';
 import { styled } from '@mui/material/styles';
@@ -22,6 +23,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { getCarByCarId } from '../../service/rentaro.service';
 
 //table
 function createData(name: any, calories: any) {
@@ -44,62 +46,79 @@ const Img = styled('img')({
 });
 
 const CarByCarId = () => {
+    const router = useRouter();
+    const { carId } = router.query
+    const [carData, setCarData] = useState<any>();
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
-    const [value, setValue] = React.useState(null);
+    const [startDate, setStartDate] = React.useState(null);
+    const [endDate, setEndDate] = React.useState(null);
+
+    useEffect(() => {
+        // console.log("carId", carId);
+        if (carId && !carData) {
+            getCarByCarId(carId).then(res => {
+                // console.log("res =>", res);
+                setCarData(res)
+            })
+        }
+    }, [carId])
+
     return (
         <>
             <Container>
                 {/* <Paper sx={{ p: 2, margin: 'auto', maxWidth: 1200, flexGrow: 1 }}> */}
-                <Grid sx={{ mt: 5 }}>
-                    <Grid
-                        xs={12}
-                        spacing={0}
-                        alignItems="center"
-                        justifyContent="center">
-                        <Img alt="complex" src={image} />
-                    </Grid>
-                    <Paper sx={{ p: 2, margin: 'auto', maxWidth: 700, flexGrow: 1 }}>
+                {carData &&
+                    <Grid sx={{ mt: 5 }}>
                         <Grid
-                            item xs={12}
-                            sx={{ m: 1 }}
-                            container
-                        >
+                            xs={12}
+                            spacing={0}
+                            alignItems="center"
+                            justifyContent="center">
+                            <Img alt="complex" src={image} />
+                        </Grid>
+                        <Paper sx={{ p: 2, margin: 'auto', maxWidth: 700, flexGrow: 1 }}>
                             <Grid
-                                item xs={6}
+                                item xs={12}
+                                sx={{ m: 1 }}
                                 container
-                                direction="row"
-                                justifyContent="space-around"
-                                alignItems="center"
                             >
-                                <Grid>
+                                <Grid
+                                    item xs={6}
+                                    container
+                                    direction="row"
+                                    justifyContent="space-around"
+                                    alignItems="center"
+                                >
+                                    <Grid>
+                                        <Typography variant="subtitle1">
+                                            ข้อมูลรถ
+                                        </Typography>
+                                        <Typography variant="body2" >
+                                            {`${carData.model}`}
+                                        </Typography>
+                                        <Typography variant="body2" >
+                                            {`ปี ${carData.production_year}`}
+                                        </Typography>
+                                        <Typography variant="body2" >
+                                            {`ราคาค่าเช่า ${carData.cost} บาทต่อวัน`}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                                <Grid item xs={6}>
                                     <Typography variant="subtitle1">
-                                        ข้อมูลรถ
+                                        ข้อมูลที่รับรถ
                                     </Typography>
                                     <Typography variant="body2" >
-                                        Yamaha Fino
+                                        {`${carData.province}, ${carData.district}, ${carData.sub_district}`}
                                     </Typography>
-                                    <Typography variant="body2" >
-                                        ปี 2021
-                                    </Typography>
-                                    <Typography variant="body2" >
-                                        ราคาค่าเช่า 300 บาทต่อวัน
-                                    </Typography>
+
+
                                 </Grid>
                             </Grid>
-                            <Grid item xs={6}>
-                                <Typography variant="subtitle1">
-                                    ข้อมูลที่รับรถ
-                                </Typography>
-                                <Typography variant="body2" >
-                                    Nonthaburi, Pak ket,
-                                </Typography>
+                        </Paper>
+                    </Grid>
 
-
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
-
+                }
                 <Typography align="center" sx={{ mt: 5 }}>
                     ประวัติการเช่า
                 </Typography>
@@ -156,9 +175,11 @@ const CarByCarId = () => {
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 label="วันที่ต้องการเช่า"
-                                value={value}
+                                value={startDate}
                                 onChange={(newValue) => {
-                                    setValue(newValue);
+                                    console.log("newValue =>", newValue);
+                                    // newValue.
+                                    setStartDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
                             />
@@ -169,9 +190,11 @@ const CarByCarId = () => {
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 label="วันที่ต้องการเช่า"
-                                value={value}
+                                value={endDate}
                                 onChange={(newValue) => {
-                                    setValue(newValue);
+                                    console.log("newValue =>", newValue);
+
+                                    setEndDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
                             />

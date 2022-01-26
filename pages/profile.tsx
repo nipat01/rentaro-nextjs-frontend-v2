@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -9,14 +9,28 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import MyProfile from '../component/myprofile';
 import MyCar from '../component/mycar';
+import { useSession, signIn, signOut } from "next-auth/react"
+import { getProfileUser } from '../service/rentaro.service';
 
 
 const Profile = () => {
+    const { data: session } = useSession();
     const [isShow, setIsShow] = useState("myprofile");
+    const [profileUser, setProfileUser] = useState();
+
+
+
+
+    if (!session) {
+        return <p>You are not logged in.</p>;
+    }
 
     return (
         <>
             <Container>
+                {/* <p>
+                    <pre>{JSON.stringify(session?.user, null, 2)}</pre>
+                </p> */}
                 <Box
                     sx={{
                         mt: 5,
@@ -36,7 +50,7 @@ const Profile = () => {
                     </ButtonGroup>
                 </Box>
                 {
-                    isShow === "myprofile" && <MyProfile />
+                    isShow === "myprofile" && <MyProfile  />
                 }
                 {
                     isShow === "mycar" && <MyCar />

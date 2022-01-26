@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -5,8 +6,20 @@ import styles from '../styles/Home.module.css'
 import NavBar from '../layout/navbar'
 import ListCar from '../component/listCar'
 import Typography from '@mui/material/Typography';
+import { useSession, signIn, signOut } from "next-auth/react"
+import { getCarAll } from '../service/rentaro.service';
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
+  const [carData, setCarData] = useState()
+  useEffect(() => {
+    console.log("session =>", session);
+    getCarAll().then(res => {
+      console.log("res =>", res);
+      setCarData(res);
+    });
+
+  }, [])
 
   return (
     <div>
@@ -16,7 +29,7 @@ const Home: NextPage = () => {
           <Typography align="center" sx={{ mt: 5 }}>
             <h3>Product List</h3>
           </Typography>
-          <ListCar list={[1, 2, 3, 4, 5, 6, 7]} />
+          <ListCar list={carData} />
         </div>
       </main>
     </div>

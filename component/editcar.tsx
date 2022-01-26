@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link'
 
 import Container from '@mui/material/Container';
@@ -13,6 +13,8 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import TextField from '@mui/material/TextField';
+import { getCarByCarId, createCar, editCar } from '../service/rentaro.service';
+import { useSession, signIn, signOut } from "next-auth/react"
 
 const Img = styled('img')({
     margin: 'auto',
@@ -22,15 +24,46 @@ const Img = styled('img')({
 });
 
 const EditCar = (props: any) => {
+    const { data: session } = useSession();
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
     const [value, setValue] = React.useState(null);
+    const [carData, setCarData] = useState<any>();
+
+
+    const handleCreateCar = () => {
+        console.log("carData =>", carData);
+        editCar(carData).then(res => {
+            // console.log("res =>", res);
+            props.handleIsShow()
+        });
+
+    }
+
+    const handleChangeCarData = (e: any) => {
+        console.log("e", e.target.value);
+        setCarData((prev: any) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+            image: image,
+            owner_id: session?.user?.email
+        }))
+    }
+
+    useEffect(() => {
+        console.log("props carId", props.carId);
+        if (props.carId) {
+            getCarByCarId(props.carId).then(res => {
+                console.log("res =>", res);
+                setCarData(res)
+            })
+        }
+    }, [])
 
     return (
         <>
             {
                 props?.carId &&
                 <>
-
                     <Grid sx={{ mt: 5 }}>
                         <Grid
                             xs={12}
@@ -61,16 +94,16 @@ const EditCar = (props: any) => {
                                         </Typography>
                                     </Box>
                                     <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="ยี่ฮ้อ" variant="outlined" />
+                                        <TextField name="model" value={carData?.model} fullWidth id="fullWidth" label={carData?.model ? "" : "รุ่นรถ"} variant="outlined" onChange={e => handleChangeCarData(e)} />
+                                    </Box>
+                                    {/* <Box sx={{ mt: 2 }} textAlign="center">
+                                <TextField name="phone" fullWidth id="fullWidth" label="รุ่น" variant="outlined" />
+                            </Box> */}
+                                    <Box sx={{ mt: 2 }} textAlign="center">
+                                        <TextField name="production_year" value={carData?.production_year} fullWidth id="fullWidth" label={carData?.production_year ? "" : "ปี"} variant="outlined" onChange={e => handleChangeCarData(e)} />
                                     </Box>
                                     <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="รุ่น" variant="outlined" />
-                                    </Box>
-                                    <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="ปี" variant="outlined" />
-                                    </Box>
-                                    <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="ราคาเช่าต่อวัน" variant="outlined" />
+                                        <TextField name="cost" value={carData?.cost} fullWidth id="fullWidth" label={carData?.cost ? "" : "ราคาเช่าต่อวัน"} variant="outlined" onChange={e => handleChangeCarData(e)} />
                                     </Box>
 
                                     {/* </Grid> */}
@@ -85,24 +118,22 @@ const EditCar = (props: any) => {
                                         </Typography>
                                     </Box>
                                     <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="จังหวัด" variant="outlined" />
+                                        <TextField name="province" value={carData?.province} fullWidth id="fullWidth" label={carData?.province ? "" : "จังหวัด"} variant="outlined" onChange={e => handleChangeCarData(e)} />
                                     </Box>
                                     <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="อำเภอ" variant="outlined" />
+                                        <TextField name="district" value={carData?.district} fullWidth id="fullWidth" label={carData?.district ? "" : "อำเภอ"} variant="outlined" onChange={e => handleChangeCarData(e)} />
                                     </Box>
                                     <Box sx={{ mt: 2 }} textAlign="center">
-                                        <TextField fullWidth id="fullWidth" label="ตำบล" variant="outlined" />
+                                        <TextField name="sub_district" value={carData?.sub_district} fullWidth id="fullWidth" label={carData?.sub_district ? "" : "ตำบล"} variant="outlined" onChange={e => handleChangeCarData(e)} />
                                     </Box>
                                 </Grid>
                             </Grid>
                         </Paper>
                     </Grid >
-                    < Box
+                    <Box
                         sx={{ mt: 3 }}
                         textAlign='center'>
-                        <Button onClick={() => {
-                            props.saveEditCar()
-                        }} variant='contained'>
+                        <Button variant='contained' onClick={handleCreateCar}>
                             Save
                         </Button>
                     </Box>
