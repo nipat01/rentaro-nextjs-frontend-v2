@@ -25,7 +25,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { createRental, getCarByCarId } from '../../service/rentaro.service';
+import { createRental, getCarByCarId, getRentalByCarId } from '../../service/rentaro.service';
 
 //table
 function createData(name: any, calories: any) {
@@ -52,6 +52,7 @@ const CarByCarId = () => {
     const { data: session } = useSession();
     const { carId } = router.query
     const [carData, setCarData] = useState<any>();
+    const [rentalData, setRentalData] = useState<any>([]);
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
     const [startDate, setStartDate] = useState<any>(null);
     const [endDate, setEndDate] = useState<any>(null);
@@ -92,11 +93,18 @@ const CarByCarId = () => {
         // console.log("carId", carId);
         if (carId && !carData) {
             getCarByCarId(carId).then(res => {
-                // console.log("res =>", res);
+                console.log("res =>", res);
                 setCarData(res)
+            });
+
+            getRentalByCarId(carId).then(res => {
+                console.log("getRentalByCarId  res", res);
+                setRentalData(res);
             })
+
         }
     }, [carId])
+
 
     return (
         <>
@@ -154,42 +162,48 @@ const CarByCarId = () => {
                     </Grid>
 
                 }
-                <Typography align="center" sx={{ mt: 5 }}>
-                    ประวัติการเช่า
-                </Typography>
-                <Grid
-                    sx={{ mt: 3 }}
-                    container
-                    justifyContent="center"
-                    alignItems="center"
-                >
-                    <Grid xs={6}>
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 250 }} size="small" aria-label="a dense table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="center">วันที่เริ่ม</TableCell>
-                                        <TableCell align="center">วันที่คืนรถ</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {rows.map((row, index) => (
-                                        <TableRow
-                                            key={index}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell align="center">
-                                                {row.name}
-                                            </TableCell>
-                                            <TableCell align="center">{row.calories}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Grid>
-                </Grid>
 
+                {
+                    carData && rentalData &&
+                    <>
+                        <Typography align="center" sx={{ mt: 5 }}>
+                            ประวัติการเช่า
+                        </Typography>
+                        <Grid
+                            sx={{ mt: 3 }}
+                            container
+                            justifyContent="center"
+                            alignItems="center"
+                        >
+                            <Grid xs={6}>
+                                <TableContainer component={Paper}>
+                                    <Table sx={{ minWidth: 250 }} size="small" aria-label="a dense table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell align="center">วันที่เริ่ม</TableCell>
+                                                <TableCell align="center">วันที่คืนรถ</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {rentalData.map((row: any, index: any) => (
+                                                <TableRow
+                                                    key={index}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell align="center">
+                                                        {row.start_date}
+                                                    </TableCell>
+                                                    <TableCell align="center">{row.end_date}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Grid>
+                        </Grid>
+
+                    </>
+                }
                 <Typography align="center" sx={{ mt: 5 }}>
                     การจอง
                 </Typography>
