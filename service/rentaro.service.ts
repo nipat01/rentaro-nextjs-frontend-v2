@@ -1,4 +1,5 @@
 
+// const api_url = "https://rentaro-api.herokuapp.com"
 const api_url = process.env.NEXT_PUBLIC_API_URL
 
 function getProfileUser(email: any) {
@@ -44,7 +45,7 @@ function editCar(input: any) {
     };
     return fetch(`${api_url}/car`, requestOptions)
         .then(response => {
-            // console.log("response =>", response);
+            console.log("response =>", response);
             return response.json()
 
         });
