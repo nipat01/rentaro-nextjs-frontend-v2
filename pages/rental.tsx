@@ -108,7 +108,7 @@ const Rental = () => {
                                                             สถานที่รับ  {`${item?.car?.province}, ${item?.car?.district}, ${item?.car?.sub_district}`}
                                                         </Typography>
                                                         <Typography variant="body2" gutterBottom>
-                                                            เจ้าของ คุณ{` ${item.owner.name}`}
+                                                            เจ้าของ คุณ{` ${item?.owner?.name}`}
                                                         </Typography>
 
                                                         <Typography variant="body2" color="text.secondary">

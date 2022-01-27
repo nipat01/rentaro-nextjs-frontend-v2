@@ -30,7 +30,9 @@ const MyProfile = (props: any) => {
     const handleChangeEditUserProfile = (e: any) => {
         setProfileUser((prev: any) => ({
             ...prev,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            email: session?.user?.email,
+            name: session?.user?.name
         }));
     }
 
