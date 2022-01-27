@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import moment from 'moment'
 import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -60,7 +61,7 @@ const ListCar = (props: any) => {
                                                 </IconButton>
                                             }
                                             title={`${item.province}, ${item.district}, ${item.sub_district}`}
-                                            subheader={item.created}
+                                            subheader={moment(`${item.created}`, 'DD-MM-YYYY').format('Do MMMM YYYY')}
                                         />
                                         <CardMedia
                                             component="img"

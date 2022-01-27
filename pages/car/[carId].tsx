@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import Router, { useRouter, } from 'next/router'
+import { useSession, signIn, signOut } from "next-auth/react"
+import moment from 'moment';
 
 import Container from '@mui/material/Container';
 import { styled } from '@mui/material/styles';
@@ -23,7 +25,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { getCarByCarId } from '../../service/rentaro.service';
+import { createRental, getCarByCarId } from '../../service/rentaro.service';
 
 //table
 function createData(name: any, calories: any) {
@@ -47,11 +49,44 @@ const Img = styled('img')({
 
 const CarByCarId = () => {
     const router = useRouter();
+    const { data: session } = useSession();
     const { carId } = router.query
     const [carData, setCarData] = useState<any>();
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
-    const [startDate, setStartDate] = React.useState(null);
-    const [endDate, setEndDate] = React.useState(null);
+    const [startDate, setStartDate] = useState<any>(null);
+    const [endDate, setEndDate] = useState<any>(null);
+    const [formatDate, setFormatDate] = useState<any>("dd-MMM-yyyy");
+
+    const handleOnClickCreateRental = () => {
+        console.log("startdate", moment(startDate).format('DD-MM-YYYY'));
+        calculateCostByDate();
+        const requestData = {
+            car_id: carData._id,
+            renter_id: session?.user?.email,
+            owner_id: carData.owner_id,
+            start_date: moment(startDate).format('DD-MM-YYYY'),
+            end_date: moment(endDate).format('DD-MM-YYYY'),
+            cost: calculateCostByDate()
+        }
+        console.log("requestData", requestData);
+        createRental(requestData).then(res => {
+            console.log("createRental res", res);
+            Router.push("/rental");
+
+        })
+    }
+
+    const calculateCostByDate = () => {
+        let date1 = new Date(startDate);
+        let date2 = new Date(endDate);
+        let difference = date2.getTime() - date1.getTime();
+        let numberOfDays = Math.ceil(difference / (1000 * 3600 * 24));
+        console.log("numberOfDays =>", numberOfDays - 1);
+        console.log("carData.cost", carData?.cost);
+        let calculatecost = (numberOfDays - 1) * carData.cost;
+        return calculatecost
+    }
+
 
     useEffect(() => {
         // console.log("carId", carId);
@@ -177,8 +212,9 @@ const CarByCarId = () => {
                                 label="วันที่ต้องการเช่า"
                                 value={startDate}
                                 onChange={(newValue) => {
-                                    console.log("newValue =>", newValue);
-                                    // newValue.
+                                    console.log("startDate =>", newValue);
+                                    // console.log("newValue moment=>", moment(newValue).format('DD-MM-YYYY'));
+                                    // newValue
                                     setStartDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
@@ -192,8 +228,7 @@ const CarByCarId = () => {
                                 label="วันที่ต้องการเช่า"
                                 value={endDate}
                                 onChange={(newValue) => {
-                                    console.log("newValue =>", newValue);
-
+                                    console.log("endDate =>", newValue);
                                     setEndDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
@@ -212,7 +247,8 @@ const CarByCarId = () => {
                     </Grid>
                 </Grid>
                 <Box textAlign='center'>
-                    <Button variant='contained'>
+                    <Button variant='contained'
+                        onClick={() => handleOnClickCreateRental()}>
                         จอง
                     </Button>
                 </Box>

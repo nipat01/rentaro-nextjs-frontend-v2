@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link'
 
 import AppBar from '@mui/material/AppBar';
@@ -22,6 +22,7 @@ const settings = [{ name: "Profile", path: "/profile" }, { name: "Rental", path:
 const NavBar = () => {
     const { data: session } = useSession();
 
+    const [isSession, setIssession] = useState(true);
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -39,6 +40,15 @@ const NavBar = () => {
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
+    useEffect(() => {
+        if (!session) {
+            setIssession(false);
+            // console.log("session", session);
+        } else {
+            // setIssession(true)
+        }
+    });
     return (
         <>
             <AppBar position="static">
@@ -140,7 +150,7 @@ const NavBar = () => {
 
 
                         <Box sx={{ flexGrow: 0 }}>
-                            {!session && (
+                            {!session && !isSession && (
                                 <>
                                     <Box
                                         sx={{ mt: 3, }}
@@ -163,8 +173,6 @@ const NavBar = () => {
                             )}
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-
-
                                     {session && (
                                         <>
                                             {/* <p>

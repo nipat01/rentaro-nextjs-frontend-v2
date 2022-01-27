@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSession, signIn, signOut } from "next-auth/react"
+import moment from 'moment';
+moment.locale('th');
+
 import Link from 'next/link';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -10,6 +14,7 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import ButtonBase from '@mui/material/ButtonBase';
 import { styled } from '@mui/material/styles';
+import { getRentalByRenterId, updateRental } from '../service/rentaro.service';
 
 
 const Img = styled('img')({
@@ -21,7 +26,44 @@ const Img = styled('img')({
 
 
 const Rental = () => {
+    const { data: session } = useSession();
     const [image, setImage] = useState("https://www.autodeft.com/_uploads/images/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%96%E0%B8%A1%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%8B%E0%B8%84%E0%B9%8C%20Honda%20Scoopy%20Urban%202021%20%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD%E0%B8%87.jpg")
+
+    const [rentalData, setRentalData] = useState<any>([]);
+    const [data, setData] = useState<any>([]);
+    const [isRentalData, setIsRentalData] = useState<any>()
+
+    const handleOnclickCancelRental = (rental: any) => {
+        console.log("rental", rental);
+        const isConfirm = confirm("ต้องการที่จะยกเลิกใช่หรือไม่?");
+        console.log("isConfirm", isConfirm);
+        if (isConfirm) {
+            rental.status = "Cancel";
+            updateRental(rental).then(res => {
+                console.log("updateRental res", res);
+            })
+        }
+
+    }
+
+    const handleFilterData = (status: any, rentalData: any) => {
+        console.log("rentalData", rentalData);
+
+        const filterData = rentalData.filter((item: any) => item.status == status);
+        console.log("filterData", filterData);
+        setData(filterData)
+
+    }
+
+    useEffect(() => {
+        if (rentalData.length === 0) {
+            getRentalByRenterId(session?.user?.email).then(res => {
+                console.log("res", res);
+                setRentalData(res);
+                handleFilterData("Pending", res);
+            });
+        }
+    }, [session])
 
     return (
         <>
@@ -35,10 +77,10 @@ const Rental = () => {
                     }}
                 >
                     <ButtonGroup variant="text" size="large" aria-label="large button group">
-                        <Button key="one">รอดำเนินการ</Button>
-                        <Button key="two">กำลังดำเนินการ</Button>
-                        <Button key="three">ดำเนินการแล้ว</Button>
-                        <Button key="three">ยกเลิก</Button>
+                        <Button key="one" onClick={() => handleFilterData("Pending", rentalData)}>รอดำเนินการ</Button>
+                        <Button key="two" onClick={() => handleFilterData("OnProcess", rentalData)}>กำลังดำเนินการ</Button>
+                        <Button key="three" onClick={() => handleFilterData("Done", rentalData)}>ดำเนินการแล้ว</Button>
+                        <Button key="three" onClick={() => handleFilterData("Cancel", rentalData)}>ยกเลิก</Button>
                     </ButtonGroup>
                 </Box>
                 <Grid
@@ -46,7 +88,7 @@ const Rental = () => {
                     justifyContent="center"
                     alignItems="center">
                     {
-                        [1, 2, 3, 4, 5, 6, 7, 8].map(item => (
+                        data?.map((item: any) => (
                             <>
                                 <Box sx={{ mt: 3 }}>
                                     <Paper variant="outlined" sx={{ p: 5, margin: 'auto', maxWidth: 800, flexGrow: 1 }}>
@@ -63,31 +105,35 @@ const Rental = () => {
                                                             Yanaya Fino
                                                         </Typography>
                                                         <Typography variant="body2" gutterBottom>
-                                                            สถานที่รับ Nonthaburi, Pak ked
+                                                            สถานที่รับ  {`${item?.car?.province}, ${item?.car?.district}, ${item?.car?.sub_district}`}
                                                         </Typography>
                                                         <Typography variant="body2" gutterBottom>
-                                                            เจ้าของ คุณRentato
+                                                            เจ้าของ คุณ{` ${item.owner.name}`}
                                                         </Typography>
 
                                                         <Typography variant="body2" color="text.secondary">
-                                                            นัดรับ วันที่ 22 มกราคม 2565
+                                                            นัดรับ วันที่ {moment(`${item.start_date}`, 'DD-MM-YYYY').format('Do MMMM YYYY')}
+                                                            {/* นัดรับ วันที่ 22 มกราคม 2565 {moment(new Date("25/01/2022").toString()).format('MMMM Do YYYY, h:mm:ss a')} */}
                                                         </Typography>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            คืนวันที่ วันที่ 22 มกราคม 2565
+                                                            คืนวันที่ วันที่ {moment(`${item.end_date}`, 'DD-MM-YYYY').format('Do MMMM YYYY')}
                                                         </Typography>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            สถานะ รอดำเนินการ
+                                                            สถานะ {`${item.status}`}
                                                         </Typography>
                                                     </Grid>
-                                                    <Grid item>
-                                                        <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                                                            Cancel
-                                                        </Typography>
-                                                    </Grid>
+                                                    {
+                                                        item?.status !== "Cancel" &&
+                                                        <Grid item>
+                                                            <Typography sx={{ cursor: 'pointer' }} variant="body2" onClick={() => handleOnclickCancelRental(item)}>
+                                                                Cancel
+                                                            </Typography>
+                                                        </Grid>
+                                                    }
                                                 </Grid>
                                                 <Grid item>
                                                     <Typography variant="subtitle1" component="div">
-                                                        $300
+                                                        ${`${item.cost}`}
                                                     </Typography>
                                                 </Grid>
                                             </Grid>

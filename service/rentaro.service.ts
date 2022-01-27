@@ -82,6 +82,50 @@ function getCarByCarId(id: any) {
         .then(data => data.json())
 }
 
+function createRental(input: any) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input)
+    };
+    return fetch(`${api_url}/rental`, requestOptions)
+        .then(response => {
+            // console.log("response =>", response);
+            return response.json()
+
+        });
+}
+
+function getRentalByRenterId(email: any) {
+    return fetch(`${api_url}/rental/renterid/${email}`)
+        .then(data => data.json())
+}
+
+function getRentalByOwnerId(email: any) {
+    return fetch(`${api_url}/rental/ownerid/${email}`)
+        .then(data => data.json())
+}
+
+function getRentalByCarId(carId: any) {
+    return fetch(`${api_url}/rental/carid/${carId}`)
+        .then(data => data.json())
+}
+
+function updateRental(input: any) {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input)
+    };
+    return fetch(`${api_url}/rental`, requestOptions)
+        .then(response => {
+            // console.log("response =>", response);
+            return response.json()
+
+        });
+}
+
+
 
 export {
     getProfileUser,
@@ -91,5 +135,10 @@ export {
     getCarAll,
     getCarByCarId,
     editCar,
-    deleteCarByCarId
+    deleteCarByCarId,
+    createRental,
+    getRentalByRenterId,
+    getRentalByOwnerId,
+    getRentalByCarId,
+    updateRental
 }
